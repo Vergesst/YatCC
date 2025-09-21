@@ -35,9 +35,10 @@ CheckOptions:
 
   # Constant
   - key: readability-identifier-naming.ConstantCase
-    value: CamelCase
-  - key: readability-identifier-naming.ConstantPrefix
-    value: k
+    value: lower_case
+  # why there should be a prefix for CONSTANT????
+  # - key: readability-identifier-naming.ConstantPrefix
+  #   value: k
   - key: readability-identifier-naming.ConstantIgnoredRegexp
     value: "^_|_$"
 
@@ -89,7 +90,8 @@ CheckOptions:
 
   # Parameter
   - key: readability-identifier-naming.ParameterCase
-    value: camelBack
+    # value: camelBack --- snake_case
+    value: lower_case
   - key: readability-identifier-naming.ParameterIgnoredRegexp
     value: "^_|_$"
 
@@ -109,6 +111,7 @@ CheckOptions:
 
   # Variable
   - key: readability-identifier-naming.VariableCase
-    value: camelBack
+    # value: camelBack --- change camel case into snake case
+    value: lower_case
   - key: readability-identifier-naming.VariableIgnoredRegexp
     value: "^_|_$"

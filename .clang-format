@@ -1,3 +1,5 @@
 ---
 Language: Cpp
-BasedOnStyle: Mozilla
+# Mozilla -> LLVM to make the format looks normal
+# BasedOnStyle: Mozilla
+BasedOnStyle: LLVM
