@@ -2,25 +2,49 @@
 {
   "name": "YatCC",
   "remoteUser": "root",
-
   "image": "registry.cn-guangzhou.aliyuncs.com/yhgu2000/yatcc:latest",
   "workspaceMount": "type=bind,src=${localWorkspaceFolder},dst=/YatCC",
   "workspaceFolder": "/YatCC",
-
+  // clangd lsp added
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installSudo": true,
+      "configureSudo": true
+    }
+  },
+  "postCreateCommand": "apt-get update && apt-get install -y clangd cmake && cmake -B build -S . -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
   // 允许 C/C++ 调试
-  "capAdd": ["SYS_PTRACE"],
-  "securityOpt": ["seccomp=unconfined"],
-
+  "capAdd": [
+    "SYS_PTRACE"
+  ],
+  "securityOpt": [
+    "seccomp=unconfined"
+  ],
   "customizations": {
     // VS Code 插件
     "vscode": {
+      "settings": {
+        "clangd.path": "/usr/bin/clangd",
+        "C_Cpp.intelliSenseEngine": "disabled",
+        "clangd.arguments": [
+          "--compile-commands-dir=${workspaceFolder}/build"
+        ],
+        "editor.formatOnSave": true,
+        "[cpp]": {
+          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+        },
+        "[c]": {
+          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+        }
+      },
       "extensions": [
         "ms-vscode.cpptools-extension-pack",
         "ms-vscode.cmake-tools",
         "qiu.llvm-ir-language-support",
         "daohong-emilio.yash",
         "mike-lischke.vscode-antlr4",
-        "twxs.cmake"
+        "twxs.cmake",
+        "llvm-vs-code-extensions.vscode-clangd"
       ]
     }
   }
