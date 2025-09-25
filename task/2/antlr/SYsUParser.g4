@@ -1,137 +1,127 @@
 parser grammar SYsUParser;
 
 options {
-  tokenVocab=SYsULexer;
+	tokenVocab = SYsULexer;
 }
 
-primaryExpression
-    :   Identifier
-    |   Constant
-    ;
+primaryExpression: Identifier | Constant;
 
-postfixExpression
-    :   primaryExpression  
-    ;
+postfixExpression: primaryExpression;
 
-unaryExpression
-    :
-    (postfixExpression
-    |   unaryOperator unaryExpression
-    )
-    ;
+unaryExpression:
+	(
+		postfixExpression // a / indentifier
+		| unaryOperator unaryExpression // +a
+		| bracedExpression // (...)
+		| indexExpression //a[...][...]
+		| functionCallExpression //func()
+	);
 
-unaryOperator
-    :   Plus | Minus
-    ;
+unaryOperator: Plus | Minus | LogicalNot;
 
-additiveExpression
-    :   unaryExpression ((Plus|Minus) unaryExpression)*
-    ;
+bracedExpression:
+	LeftParen (
+	 logicalExpression
+	) RightParen;
 
+indexExpression:
+	Identifier (LeftBracket logicalExpression RightBracket)+;
 
-assignmentExpression
-    :   additiveExpression
-    |   unaryExpression Equal assignmentExpression
-    ;
+functionCallExpression:
+	Identifier LeftParen logicalExpression? (Comma logicalExpression)* RightParen ;  // func(a,b)
 
-expression
-    :   assignmentExpression (Comma assignmentExpression)*
-    ;
+relationExpression:
+	additiveExpression ((EqualEqual | NotEqual | Greater | Less | GreaterEqual | LessEqual) additiveExpression)*;
 
+logicalExpression:
+	logicalAndExpression (LogicalOr logicalAndExpression)*
+	;
 
-declaration
-    :   declarationSpecifiers initDeclaratorList? Semi
-    ;
+logicalAndExpression:
+	relationExpression (LogicalAnd relationExpression)*
+	;
 
-declarationSpecifiers
-    :   declarationSpecifier+
-    ;
+additiveExpression:
+	multiplicativeExpression (
+		(Plus | Minus) multiplicativeExpression
+	)*;
 
-declarationSpecifier
-    :   typeSpecifier
-    ;
+multiplicativeExpression:
+	unaryExpression ((Star | Div | Mod) unaryExpression)*;
 
-initDeclaratorList
-    :   initDeclarator (Comma initDeclarator)*
-    ;
+assignmentExpression:
+	additiveExpression
+	| unaryExpression Equal assignmentExpression;
 
-initDeclarator
-    :   declarator (Equal initializer)?
-    ;
+expression: assignmentExpression (Comma assignmentExpression)*;
 
+declaration: declarationSpecifiers initDeclaratorList? Semi; // 声明 int a = {4}, b = {5};
 
-typeSpecifier
-    :   Int
-    ;
+declarationSpecifiers: declarationSpecifier+;
 
+declarationSpecifier: typeSpecifier;
 
-declarator
-    :   directDeclarator
-    ;
+initDeclaratorList: initDeclarator (Comma initDeclarator)*; // a = {4}, b = {5}
 
-directDeclarator
-    :   Identifier
-    |   directDeclarator LeftBracket assignmentExpression? RightBracket
-    ;
+initDeclarator: declarator (Equal initializer)?;  // 初始化声明，a = {4}
 
-identifierList
-    :   Identifier (Comma Identifier)*
-    ;
+typeSpecifier: Int | Const | Char | Void | Long | LongLong;
 
-initializer
-    :   assignmentExpression
-    |   LeftBrace initializerList? Comma? RightBrace
-    ;
+declarator: directDeclarator;
+
+directDeclarator:
+	Identifier
+	| directDeclarator LeftBracket assignmentExpression? RightBracket;
+
+identifierList: Identifier (Comma Identifier)*;
+
+initializer:
+	assignmentExpression
+	| LeftBrace initializerList? Comma? RightBrace;
 
 initializerList
-    // :   designation? initializer (Comma designation? initializer)*
-    :   initializer (Comma initializer)*
-    ;
+	: initializer (Comma initializer)*; // :   designation? initializer (Comma designation? initializer)*
 
-statement
-    :   compoundStatement
-    |   expressionStatement
-    |   jumpStatement
-    ;
+statement:
+	compoundStatement
+	| expressionStatement
+	| jumpStatement
+	| ifElseStatement
+	| whileStatement
+	| breakStatement
+	| continueStatement
+	;
 
-compoundStatement
-    :   LeftBrace blockItemList? RightBrace
-    ;
+compoundStatement: LeftBrace blockItemList? RightBrace;
 
-blockItemList
-    :   blockItem+
-    ;
+blockItemList: blockItem+;
 
-blockItem
-    :   statement
-    |   declaration
-    ;
+blockItem: statement | declaration;
 
-expressionStatement
-    :   expression? Semi
-    ;
+expressionStatement: expression? Semi;
 
+jumpStatement: (Return expression?) Semi;
 
+compilationUnit: translationUnit? EOF;
 
-jumpStatement
-    :   (Return expression?)
-    Semi
-    ;
+translationUnit: externalDeclaration+;
 
-compilationUnit
-    :   translationUnit? EOF
-    ;
+externalDeclaration: functionDeclaration | declaration;
 
-translationUnit
-    :   externalDeclaration+
-    ;
+functionDeclaration:
+	declarationSpecifiers directDeclarator LeftParen parameterList? RightParen (compoundStatement | Semi); // int func(int a){...}或int func(int a);
 
-externalDeclaration
-    :   functionDefinition
-    |   declaration
-    ;
+parameterList:
+	declarationSpecifiers initDeclarator (Comma declarationSpecifiers initDeclarator)*; // int a ={4},int b={4}
 
-functionDefinition
-    : declarationSpecifiers directDeclarator LeftParen RightParen compoundStatement
-    ;
+ifElseStatement:
+	If LeftParen logicalExpression RightParen statement (Else statement)?;
 
+whileStatement:
+	While LeftParen logicalExpression RightParen statement;
+
+breakStatement:
+	Break Semi;
+
+continueStatement:
+	Continue Semi;

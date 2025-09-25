@@ -50,8 +50,22 @@ public:
 
   Expr* operator()(ast::PrimaryExpressionContext* ctx);
 
-  Expr* operator()(ast::InitializerContext* ctx);
+  Expr *operator()(ast::InitializerContext *ctx);
 
+  // added
+  Expr *operator()(ast::MultiplicativeExpressionContext *ctx);
+
+  Expr *operator()(ast::RelationExpressionContext *ctx);
+
+  Expr *operator()(ast::BracedExpressionContext *ctx);
+
+  Expr *operator()(ast::LogicalExpressionContext *ctx);
+
+  Expr *operator()(ast::LogicalAndExpressionContext *ctx);
+
+  Expr *operator()(ast::FunctionCallExpressionContext *ctx);
+
+  Expr *operator()(ast::IndexExpressionContext *ctx);
   //============================================================================
   // 语句
   //============================================================================
@@ -62,7 +76,16 @@ public:
 
   Stmt* operator()(ast::ExpressionStatementContext* ctx);
 
-  Stmt* operator()(ast::JumpStatementContext* ctx);
+  Stmt *operator()(ast::JumpStatementContext *ctx);
+
+  // added
+  Stmt *operator()(ast::IfElseStatementContext *ctx);
+
+  Stmt *operator()(ast::WhileStatementContext *ctx);
+
+  Stmt *operator()(ast::BreakStatementContext *ctx);
+
+  Stmt *operator()(ast::ContinueStatementContext *ctx);
 
   //============================================================================
   // 声明
@@ -70,9 +93,11 @@ public:
 
   std::vector<Decl*> operator()(ast::DeclarationContext* ctx);
 
-  FunctionDecl* operator()(ast::FunctionDefinitionContext* ctx);
+  FunctionDecl *operator()(ast::FunctionDeclarationContext *ctx);
 
-  Decl* operator()(ast::InitDeclaratorContext* ctx, SpecQual sq);
+  Decl *operator()(ast::InitDeclaratorContext *ctx, SpecQual sq);
+
+  std::vector<Decl *> operator()(ast::ParameterListContext *ctx);
 
 private:
   struct Symtbl;
