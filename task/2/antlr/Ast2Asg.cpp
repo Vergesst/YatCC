@@ -501,10 +501,10 @@ Expr *Ast2Asg::operator()(ast::IndexExpressionContext *ctx) {
   auto node{make<BinaryExpr>()};
   auto children{ctx->children};
 
-  // children[0]是Indentifier，children[1]是[，children[2]是UnaryExpression，children[3]是]。如果有children[4]，又是[，以此类推
   node->op = BinaryExpr::kIndex;
 
   auto name = ctx->Identifier()->getText();
+  // do not forget to resolve Identifier --- error - seg fault
   auto identifier = make<DeclRefExpr>();
   identifier->decl = mSymtbl->resolve(name);
   Expr *ret{identifier};

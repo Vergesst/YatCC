@@ -1,4 +1,6 @@
 #include "EmitIR.hpp"
+#include "asg.hpp"
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/Transforms/Utils/ModuleUtils.h>
 
 #define self (*this)
@@ -15,9 +17,7 @@ EmitIR::EmitIR(Obj::Mgr& mgr, llvm::LLVMContext& ctx, llvm::StringRef mid)
 {
 }
 
-llvm::Module&
-EmitIR::operator()(asg::TranslationUnit* tu)
-{
+llvm::Module &EmitIR::operator()(asg::TranslationUnit *tu) {
   for (auto&& i : tu->decls)
     self(i);
   return mMod;
@@ -27,9 +27,7 @@ EmitIR::operator()(asg::TranslationUnit* tu)
 // 类型
 //==============================================================================
 
-llvm::Type*
-EmitIR::operator()(const Type* type)
-{
+llvm::Type *EmitIR::operator()(const Type *type) {
   if (type->texp == nullptr) {
     switch (type->spec) {
       case Type::Spec::kInt:
@@ -50,7 +48,19 @@ EmitIR::operator()(const Type* type)
   if (auto p = type->texp->dcst<FunctionType>()) {
     std::vector<llvm::Type*> pty;
     // TODO: 在此添加对函数参数类型的处理
+
+    pty.reserve(p->params.size());
+    for (const auto &param_type : p->params) {
+      pty.push_back(self(param_type));
+    }
+
     return llvm::FunctionType::get(self(&subt), std::move(pty), false);
+  }
+  if (auto p = type->texp->dcst<ArrayType>()) {
+    return llvm::ArrayType::get(self(&subt), p->len);
+  }
+  if (auto p = type->dcst<PointerType>()) {
+    return llvm::PointerType::get(self(&subt), 0);
   }
 
   ABORT();
@@ -60,9 +70,7 @@ EmitIR::operator()(const Type* type)
 // 表达式
 //==============================================================================
 
-llvm::Value*
-EmitIR::operator()(Expr* obj)
-{
+llvm::Value *EmitIR::operator()(Expr *obj) {
   // TODO: 在此添加对更多表达式处理的跳转
   if (auto p = obj->dcst<IntegerLiteral>())
     return self(p);

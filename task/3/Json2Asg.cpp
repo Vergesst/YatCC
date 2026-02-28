@@ -2,9 +2,7 @@
 
 using namespace asg;
 
-TranslationUnit*
-Json2Asg::operator()(const llvm::json::Value& jval)
-{
+TranslationUnit *Json2Asg::operator()(const llvm::json::Value &jval) {
   auto jobj = jval.getAsObject();
   ASSERT(jobj);
   ASSERT(jobj->getString("kind") == "TranslationUnitDecl");
@@ -25,9 +23,7 @@ Json2Asg::operator()(const llvm::json::Value& jval)
 
 namespace {
 
-std::size_t
-jobj_id(const llvm::json::Object& jobj)
-{
+std::size_t jobj_id(const llvm::json::Object &jobj) {
   auto id = jobj.getString("id");
   ASSERT(id);
   ASSERT(id->starts_with("0x"));
@@ -41,9 +37,7 @@ jobj_id(const llvm::json::Object& jobj)
 // 类型
 //==============================================================================
 
-const Type*
-Json2Asg::getty(const llvm::json::Object& jobj)
-{
+const Type *Json2Asg::getty(const llvm::json::Object &jobj) {
   auto a = jobj.getObject("type");
   ASSERT(a);
   auto b = a->getString("qualType");
@@ -65,9 +59,7 @@ Json2Asg::getty(const llvm::json::Object& jobj)
 // 表达式
 //==============================================================================
 
-Expr*
-Json2Asg::expr(const llvm::json::Object& jobj)
-{
+Expr *Json2Asg::expr(const llvm::json::Object &jobj) {
   auto kind = jobj.getString("kind");
   ASSERT(kind);
 
@@ -120,9 +112,7 @@ Json2Asg::expr(const llvm::json::Object& jobj)
   return ret;
 }
 
-IntegerLiteral*
-Json2Asg::integer_literal(const llvm::json::Object& jobj)
-{
+IntegerLiteral *Json2Asg::integer_literal(const llvm::json::Object &jobj) {
   auto integerLiteral = make<IntegerLiteral>();
 
   integerLiteral->type = getty(jobj);
@@ -135,9 +125,7 @@ Json2Asg::integer_literal(const llvm::json::Object& jobj)
   return integerLiteral;
 }
 
-DeclRefExpr*
-Json2Asg::decl_ref_expr(const llvm::json::Object& jobj)
-{
+DeclRefExpr *Json2Asg::decl_ref_expr(const llvm::json::Object &jobj) {
   auto declRefExpr = make<DeclRefExpr>();
 
   declRefExpr->type = getty(jobj);
@@ -152,9 +140,7 @@ Json2Asg::decl_ref_expr(const llvm::json::Object& jobj)
   return declRefExpr;
 }
 
-ParenExpr*
-Json2Asg::paren_expr(const llvm::json::Object& jobj)
-{
+ParenExpr *Json2Asg::paren_expr(const llvm::json::Object &jobj) {
   auto parenExpr = make<ParenExpr>();
 
   parenExpr->type = getty(jobj);
@@ -166,9 +152,7 @@ Json2Asg::paren_expr(const llvm::json::Object& jobj)
   return parenExpr;
 }
 
-UnaryExpr*
-Json2Asg::unary_expr(const llvm::json::Object& jobj)
-{
+UnaryExpr *Json2Asg::unary_expr(const llvm::json::Object &jobj) {
   auto unaryExpr = make<UnaryExpr>();
 
   unaryExpr->type = getty(jobj);
@@ -193,9 +177,7 @@ Json2Asg::unary_expr(const llvm::json::Object& jobj)
   return unaryExpr;
 }
 
-BinaryExpr*
-Json2Asg::binary_expr(const llvm::json::Object& jobj)
-{
+BinaryExpr *Json2Asg::binary_expr(const llvm::json::Object &jobj) {
   auto kind = jobj.getString("kind");
   ASSERT(kind);
 
@@ -250,9 +232,7 @@ Json2Asg::binary_expr(const llvm::json::Object& jobj)
   return binaryExpr;
 }
 
-CallExpr*
-Json2Asg::call_expr(const llvm::json::Object& jobj)
-{
+CallExpr *Json2Asg::call_expr(const llvm::json::Object &jobj) {
   auto callExpr = make<CallExpr>();
   callExpr->type = getty(jobj);
 
@@ -268,9 +248,7 @@ Json2Asg::call_expr(const llvm::json::Object& jobj)
   return callExpr;
 }
 
-InitListExpr*
-Json2Asg::init_list_expr(const llvm::json::Object& jobj)
-{
+InitListExpr *Json2Asg::init_list_expr(const llvm::json::Object &jobj) {
   auto initListExpr = make<InitListExpr>();
 
   initListExpr->type = getty(jobj);
@@ -292,17 +270,13 @@ Json2Asg::init_list_expr(const llvm::json::Object& jobj)
   return initListExpr;
 }
 
-ImplicitInitExpr*
-Json2Asg::implicit_init_expr(const llvm::json::Object& jobj)
-{
+ImplicitInitExpr *Json2Asg::implicit_init_expr(const llvm::json::Object &jobj) {
   auto implicitInitExpr = make<ImplicitInitExpr>();
   implicitInitExpr->type = getty(jobj);
   return implicitInitExpr;
 }
 
-ImplicitCastExpr*
-Json2Asg::implicit_cast_expr(const llvm::json::Object& jobj)
-{
+ImplicitCastExpr *Json2Asg::implicit_cast_expr(const llvm::json::Object &jobj) {
   auto implicitCastExpr = make<ImplicitCastExpr>();
   implicitCastExpr->type = getty(jobj);
 
@@ -330,9 +304,7 @@ Json2Asg::implicit_cast_expr(const llvm::json::Object& jobj)
 // 声明
 //==============================================================================
 
-Decl*
-Json2Asg::decl(const llvm::json::Object& jobj)
-{
+Decl *Json2Asg::decl(const llvm::json::Object &jobj) {
   auto kind = jobj.getString("kind");
   ASSERT(kind);
 
@@ -351,9 +323,7 @@ Json2Asg::decl(const llvm::json::Object& jobj)
   ABORT();
 }
 
-VarDecl*
-Json2Asg::var_decl(const llvm::json::Object& jobj)
-{
+VarDecl *Json2Asg::var_decl(const llvm::json::Object &jobj) {
   auto varDecl = make<VarDecl>(jobj_id(jobj));
 
   auto name = jobj.getString("name");
@@ -371,9 +341,7 @@ Json2Asg::var_decl(const llvm::json::Object& jobj)
   return varDecl;
 }
 
-FunctionDecl*
-Json2Asg::function_decl(const llvm::json::Object& jobj)
-{
+FunctionDecl *Json2Asg::function_decl(const llvm::json::Object &jobj) {
   if (jobj.getBoolean("isImplicit") && jobj.getBoolean("isImplicit") == true)
     return nullptr;
 
@@ -418,9 +386,7 @@ Json2Asg::function_decl(const llvm::json::Object& jobj)
 // 语句
 //==============================================================================
 
-Stmt*
-Json2Asg::stmt(const llvm::json::Object& jobj)
-{
+Stmt *Json2Asg::stmt(const llvm::json::Object &jobj) {
   auto kind = jobj.getString("kind");
   ASSERT(kind);
 
@@ -460,9 +426,7 @@ Json2Asg::stmt(const llvm::json::Object& jobj)
   ABORT();
 }
 
-CompoundStmt*
-Json2Asg::compound_stmt(const llvm::json::Object& jobj)
-{
+CompoundStmt *Json2Asg::compound_stmt(const llvm::json::Object &jobj) {
   auto compoundStmt = make<CompoundStmt>();
 
   auto inner = jobj.getArray("inner");
@@ -478,9 +442,7 @@ Json2Asg::compound_stmt(const llvm::json::Object& jobj)
   return compoundStmt;
 }
 
-DeclStmt*
-Json2Asg::decl_stmt(const llvm::json::Object& jobj)
-{
+DeclStmt *Json2Asg::decl_stmt(const llvm::json::Object &jobj) {
   auto declStmt = make<DeclStmt>();
   auto inner = jobj.getArray("inner");
   ASSERT(inner);
@@ -495,9 +457,7 @@ Json2Asg::decl_stmt(const llvm::json::Object& jobj)
   return declStmt;
 }
 
-ReturnStmt*
-Json2Asg::return_stmt(const llvm::json::Object& jobj)
-{
+ReturnStmt *Json2Asg::return_stmt(const llvm::json::Object &jobj) {
   auto returnStmt = make<ReturnStmt>();
 
   returnStmt->func = mCurFunc;
@@ -509,9 +469,7 @@ Json2Asg::return_stmt(const llvm::json::Object& jobj)
   return returnStmt;
 }
 
-IfStmt*
-Json2Asg::if_stmt(const llvm::json::Object& jobj)
-{
+IfStmt *Json2Asg::if_stmt(const llvm::json::Object &jobj) {
   auto ifStmt = make<IfStmt>();
 
   auto inner = jobj.getArray("inner");
@@ -525,9 +483,7 @@ Json2Asg::if_stmt(const llvm::json::Object& jobj)
   return ifStmt;
 }
 
-WhileStmt*
-Json2Asg::while_stmt(const llvm::json::Object& jobj)
-{
+WhileStmt *Json2Asg::while_stmt(const llvm::json::Object &jobj) {
   auto whileStmt = make<WhileStmt>();
   mCurLoop = whileStmt;
 
