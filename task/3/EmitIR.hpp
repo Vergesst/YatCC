@@ -1,7 +1,10 @@
 #include "asg.hpp"
+#include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
 
 class EmitIR
 {
@@ -31,12 +34,26 @@ private:
   //============================================================================
   // 表达式
   //============================================================================
+  // assistant functions
+  llvm::Value *process_and(asg::BinaryExpr *obj);
 
-  llvm::Value* operator()(asg::Expr* obj);
+  llvm::Value *operator()(asg::Expr *obj);
 
-  llvm::Constant* operator()(asg::IntegerLiteral* obj);
+  llvm::Constant *operator()(asg::IntegerLiteral *obj);
+
+  llvm::Value *operator()(asg::BinaryExpr *obj);
+
+  llvm::Value *operator()(asg::UnaryExpr *obj);
+
+  llvm::Value *operator()(asg::ParenExpr *obj);
+
+  llvm::Value *operator()(asg::ImplicitCastExpr *obj);
+
+  llvm::Value *operator()(asg::DeclRefExpr *obj);
 
   // TODO: 添加表达式处理相关声明
+
+  llvm::Value *operator()(asg::CallExpr *obj);
 
   //============================================================================
   // 语句
@@ -50,6 +67,20 @@ private:
 
   // TODO: 添加语句处理相关声明
 
+  void operator()(asg::DeclStmt *obj);
+
+  void operator()(asg::ExprStmt *obj);
+
+  void operator()(asg::IfStmt *obj);
+
+  void operator()(asg::WhileStmt *obj);
+
+  void operator()(asg::BreakStmt *obj);
+
+  void operator()(asg::ContinueStmt *obj);
+
+  void operator()(asg::NullStmt *obj);
+
   //============================================================================
   // 声明
   //============================================================================
@@ -58,5 +89,25 @@ private:
 
   void operator()(asg::FunctionDecl* obj);
 
+  void operator()(asg::VarDecl *obj);
+
+  void trans_init(llvm::Value *val, asg::Expr *obj, llvm::Type *type);
+
   // TODO: 添加声明处理相关声明
+
+  std::optional<llvm::Function *> mPreviousFunc;
+  std::optional<llvm::BasicBlock *> mPreviousBasicBlock;
+  using LocationAndValue =
+      std::vector<std::pair<std::vector<llvm::Value *>, llvm::Value *>>;
+
+  llvm::Constant *array_constant(llvm::ArrayType *array_type,
+                                 asg::InitListExpr *init,
+                                 LocationAndValue &location_and_value,
+                                 std::vector<llvm::Value *> path = {});
+
+  llvm::Value *cast_to_boolean(llvm::Value *val);
+
+  void save_state();
+
+  void restore_state();
 };
