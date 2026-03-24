@@ -1,41 +1,36 @@
 #include "asg.hpp"
-#include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/Value.h>
+#include <optional>
 
-class EmitIR
-{
+class EmitIR {
 public:
-  Obj::Mgr& mMgr;
+  Obj::Mgr &mMgr;
   llvm::Module mMod;
 
-  EmitIR(Obj::Mgr& mgr, llvm::LLVMContext& ctx, llvm::StringRef mid = "-");
+  EmitIR(Obj::Mgr &mgr, llvm::LLVMContext &ctx, llvm::StringRef mid = "-");
 
-  llvm::Module& operator()(asg::TranslationUnit* tu);
+  llvm::Module &operator()(asg::TranslationUnit *tu);
 
 private:
-  llvm::LLVMContext& mCtx;
+  llvm::LLVMContext &mCtx;
 
-  llvm::Type* mIntTy;
-  llvm::FunctionType* mCtorTy;
+  llvm::Type *mIntTy{};
+  llvm::FunctionType *mCtorTy{};
 
-  llvm::Function* mCurFunc;
+  llvm::Function *mCurFunc{};
   std::unique_ptr<llvm::IRBuilder<>> mCurIrb;
 
   //============================================================================
   // 类型
   //============================================================================
 
-  llvm::Type* operator()(const asg::Type* type);
+  llvm::Type *operator()(const asg::Type *type);
 
   //============================================================================
   // 表达式
   //============================================================================
-  // assistant functions
-  llvm::Value *process_and(asg::BinaryExpr *obj);
 
   llvm::Value *operator()(asg::Expr *obj);
 
@@ -59,11 +54,11 @@ private:
   // 语句
   //============================================================================
 
-  void operator()(asg::Stmt* obj);
+  void operator()(asg::Stmt *obj);
 
-  void operator()(asg::CompoundStmt* obj);
+  void operator()(asg::CompoundStmt *obj);
 
-  void operator()(asg::ReturnStmt* obj);
+  void operator()(asg::ReturnStmt *obj);
 
   // TODO: 添加语句处理相关声明
 
@@ -85,9 +80,9 @@ private:
   // 声明
   //============================================================================
 
-  void operator()(asg::Decl* obj);
+  void operator()(asg::Decl *obj);
 
-  void operator()(asg::FunctionDecl* obj);
+  void operator()(asg::FunctionDecl *obj);
 
   void operator()(asg::VarDecl *obj);
 
@@ -95,14 +90,18 @@ private:
 
   // TODO: 添加声明处理相关声明
 
+  //==============================================================================
+  // 自己定义的辅助函数
+  //==============================================================================
+
   std::optional<llvm::Function *> mPreviousFunc;
   std::optional<llvm::BasicBlock *> mPreviousBasicBlock;
   using LocationAndValue =
       std::vector<std::pair<std::vector<llvm::Value *>, llvm::Value *>>;
 
-  llvm::Constant *array_constant(llvm::ArrayType *array_type,
+  llvm::Constant *array_constant(llvm::ArrayType *arrayType,
                                  asg::InitListExpr *init,
-                                 LocationAndValue &location_and_value,
+                                 LocationAndValue &locationAndValue,
                                  std::vector<llvm::Value *> path = {});
 
   llvm::Value *cast_to_boolean(llvm::Value *val);
